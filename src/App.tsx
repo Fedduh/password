@@ -3,6 +3,10 @@ import { Customer, PasswordEntry, PasswordInput } from './interfaces';
 
 import './App.scss';
 
+const copyArray = <T,>(obj: T): T => {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 const App = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
@@ -15,9 +19,13 @@ const App = () => {
     fetchCustomers().then(customerData => {
       setCustomers(customerData);
       setInputs(values => ({ ...values, customerName: customerData[0]?.name }))
-      loadPasswords(customerData);
     })
   }, []);
+
+  useEffect(() => {
+    loadPasswordsFromDatabase();
+    setLoaded(true);
+  }, [customers])
 
   const fetchCustomers = async (): Promise<Customer[]> => {
     // using api.allorigins now to avoid CORS issue pastebin
@@ -28,30 +36,30 @@ const App = () => {
   }
 
   // get password list from local storage
-  const loadPasswords = (customers: Customer[]) => {
+  const loadPasswordsFromDatabase = () => {
     const passwords = localStorage.getItem('passwords');
 
     if (!passwords) {
       setPasswords([]);
-      setLoaded(true);
       return;
     }
 
     let passwordsJson: PasswordEntry[] = JSON.parse(passwords);
 
     passwordsJson = passwordsJson.map(entry => {
-      entry.customerColor = customers.find(c => c.name === entry.customerName)?.color;
+      entry.customerColor = getColorForCustomer(entry.customerName);
       return entry;
     });
 
     setPasswords(passwordsJson);
-    setLoaded(true);
+  }
+
+  const getColorForCustomer = (customer: string): string => {
+    return customers.find(c => c.name === customer)?.color ?? 'white';
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const current = localStorage.getItem('passwords');
-    const currentJson = JSON.parse(current || '[]');
 
     const { title, password, customerName } = inputs;
 
@@ -59,12 +67,13 @@ const App = () => {
       return;
     }
 
-    const newPassword = { title, password, customerName };
+    const newPasswordList = copyArray(passwords);
+    const newPassword = { title, password, customerName, customerColor: getColorForCustomer(customerName) };
 
-    currentJson.push(newPassword)
+    newPasswordList.push(newPassword)
 
-    setPasswords(currentJson);
-    localStorage.setItem('passwords', JSON.stringify(currentJson));
+    setPasswords(newPasswordList);
+    localStorage.setItem('passwords', JSON.stringify(newPasswordList));
     setInputs({ title: '', customerName: customers[0]?.name, password: '' });
   }
 
@@ -108,11 +117,11 @@ const App = () => {
         <div className='header'>Password</div>
         <div className='header'>Customer</div>
         {/* data */}
-        {passwords.map(password => (
-          <React.Fragment key={password.title}>
+        {passwords.map((password, index) => (
+          <React.Fragment key={index} >
             <div>{password.title}</div>
             <div>{password.password}</div>
-            <div>{password.customerName}</div>
+            <div className='customer' style={{ borderBottomColor: password.customerColor || 'white' }}>{password.customerName}</div>
           </React.Fragment>
         ))}
       </div>

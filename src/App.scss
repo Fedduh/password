@@ -6,8 +6,13 @@
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	margin-top: 2em;
+	max-width: 1000px;
 
 	.header {
 		font-weight: bold;
+	}
+
+	.customer {
+		border-bottom: 4px solid transparent;
 	}
 }
