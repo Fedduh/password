@@ -1,0 +1,13 @@
+.root-container {
+	padding: 1em;
+}
+
+.password-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	margin-top: 2em;
+
+	.header {
+		font-weight: bold;
+	}
+}
