@@ -10,10 +10,7 @@ const copyArray = <T,>(obj: T): T => {
 const App = () => {
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
-
 	const [inputs, setInputs] = useState<PasswordInput>({ title: '', customerName: '', password: '' });
-
-	const [loaded, setLoaded] = useState(false);
 
 	useEffect(() => {
 		fetchCustomers().then(customerData => {
@@ -24,7 +21,6 @@ const App = () => {
 
 	useEffect(() => {
 		loadPasswordsFromDatabase();
-		setLoaded(true);
 	}, [customers])
 
 	const fetchCustomers = async (): Promise<Customer[]> => {
@@ -58,7 +54,7 @@ const App = () => {
 		return customers.find(c => c.name === customer)?.color ?? 'white';
 	}
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
 		event.preventDefault();
 
 		const { title, password, customerName } = inputs;
@@ -77,16 +73,18 @@ const App = () => {
 		setInputs({ title: '', customerName: customers[0]?.name, password: '' });
 	}
 
-	const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+	const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
 		const name = event.target.name;
 		const value = event.target.value;
 
 		setInputs(values => ({ ...values, [name]: value }))
 	}
 
-	// display all passwords, password itself hidden
-	// match customerName with color
-	// toggle to display password
+	const toggleDisplayPassword = (index: number): void => {
+		setPasswords((current) => {
+			return current.map((entry, i) => i !== index ? entry : { ...entry, display: !entry.display });
+		});
+	}
 
 	return (
 		<div className='root-container'>
@@ -120,7 +118,10 @@ const App = () => {
 				{passwords.map((password, index) => (
 					<React.Fragment key={index} >
 						<div>{password.title}</div>
-						<div>{password.password}</div>
+						<div>
+							<button className='toggle-password-button' onClick={() => toggleDisplayPassword(index)}>{password.display ? 'Hide' : 'Show'}</button>
+							<span>{password.display ? password.password : '●●●●●●'}</span>
+						</div>
 						<div className='customer' style={{ borderBottomColor: password.customerColor || 'white' }}>{password.customerName}</div>
 					</React.Fragment>
 				))}
