@@ -111,7 +111,7 @@ const App = () => {
 			</form>
 
 			{/* Render passwords */}
-			<div className='password-grid'>
+			<div className='password-grid' data-cy="password-grid-list">
 				{/* table heads */}
 				<div className='header'>Title</div>
 				<div className='header'>Password</div>

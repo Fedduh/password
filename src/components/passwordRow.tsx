@@ -12,8 +12,8 @@ const PasswordRow = ({ password, index, onToggleDisplay }: PasswordRowProps) => 
 		<React.Fragment>
 			<div>{password.title}</div>
 			<div>
-				<button className='toggle-password-button' onClick={() => onToggleDisplay(index)}>{password.display ? 'Hide' : 'Show'}</button>
-				<span>{password.display ? password.password : '●●●●●●'}</span>
+				<button data-cy="password-grid-password-toggle" className='toggle-password-button' onClick={() => onToggleDisplay(index)}>{password.display ? 'Hide' : 'Show'}</button>
+				<span data-cy="password-grid-password-cell">{password.display ? password.password : '●●●●●●'}</span>
 			</div>
 			<div className='customer' style={{ borderBottomColor: password.customerColor || 'white' }}>{password.customerName}</div>
 		</React.Fragment>
