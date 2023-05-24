@@ -91,7 +91,7 @@ const App = () => {
 	return (
 		<div className='root-container'>
 			{/* Input new password entry */}
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSubmit} data-cy="form-add-password">
 				<label htmlFor="title">Title
 					<input type="text" value={inputs.title} id="title" name="title" onChange={handleOnChange} />
 				</label>
