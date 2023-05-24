@@ -7,8 +7,8 @@ export interface PasswordEntry {
 	title: string;
 	password: string;
 	customerName: string;
-	customerColor?: string;
-	display?: boolean;
+	customerColor: string;
+	display: boolean;
 }
 
 export interface PasswordInput {

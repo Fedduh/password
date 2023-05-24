@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Customer, PasswordEntry, PasswordInput } from './interfaces';
 
 import './App.scss';
+import PasswordRow from './components/passwordRow';
 
 const copyArray = <T,>(obj: T): T => {
 	return JSON.parse(JSON.stringify(obj));
@@ -44,6 +45,7 @@ const App = () => {
 
 		passwordsJson = passwordsJson.map(entry => {
 			entry.customerColor = getColorForCustomer(entry.customerName);
+			entry.display = false;
 			return entry;
 		});
 
@@ -51,7 +53,7 @@ const App = () => {
 	}
 
 	const getColorForCustomer = (customer: string): string => {
-		return customers.find(c => c.name === customer)?.color ?? 'white';
+		return customers.find(c => c.name === customer)?.color || 'white';
 	}
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
@@ -64,7 +66,7 @@ const App = () => {
 		}
 
 		const newPasswordList = copyArray(passwords);
-		const newPassword = { title, password, customerName, customerColor: getColorForCustomer(customerName) };
+		const newPassword = { title, password, customerName, display: false, customerColor: getColorForCustomer(customerName) };
 
 		newPasswordList.push(newPassword)
 
@@ -116,14 +118,7 @@ const App = () => {
 				<div className='header'>Customer</div>
 				{/* data */}
 				{passwords.map((password, index) => (
-					<React.Fragment key={index} >
-						<div>{password.title}</div>
-						<div>
-							<button className='toggle-password-button' onClick={() => toggleDisplayPassword(index)}>{password.display ? 'Hide' : 'Show'}</button>
-							<span>{password.display ? password.password : '●●●●●●'}</span>
-						</div>
-						<div className='customer' style={{ borderBottomColor: password.customerColor || 'white' }}>{password.customerName}</div>
-					</React.Fragment>
+					<PasswordRow password={password} index={index} onToggleDisplay={toggleDisplayPassword} key={index} />
 				))}
 			</div>
 		</div>
