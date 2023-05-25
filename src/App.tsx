@@ -52,7 +52,11 @@ const App = () => {
 			return;
 		}
 
-		let passwordsJson: PasswordEntry[] = JSON.parse(passwords);
+		let passwordsJson: PasswordEntry[] = [];
+
+		try {
+			passwordsJson = JSON.parse(passwords);
+		} catch (e) { }
 
 		passwordsJson = passwordsJson.map(entry => {
 			entry.customerColor = getColorForCustomer(entry.customerName);
