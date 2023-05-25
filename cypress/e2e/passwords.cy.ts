@@ -6,7 +6,6 @@ describe('Add new passwords', () => {
 
 	it('can add new passwords', () => {
 		cy.visit('');
-
 		cy.get('[data-cy=form-add-password] input#title').type('MySQL');
 		cy.get('[data-cy=form-add-password] input#password').type('My p@assw0rd');
 		cy.get('[data-cy=form-add-password] input[type=submit]').click();

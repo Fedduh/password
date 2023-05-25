@@ -3,6 +3,7 @@ import { Customer, PasswordEntry, PasswordInput } from './interfaces';
 
 import './App.scss';
 import PasswordRow from './components/passwordRow';
+import PasswordForm from './components/passwordForm';
 
 const copyArray = <T,>(obj: T): T => {
 	return JSON.parse(JSON.stringify(obj));
@@ -10,26 +11,36 @@ const copyArray = <T,>(obj: T): T => {
 
 const App = () => {
 	const [customers, setCustomers] = useState<Customer[]>([]);
+	const [loaded, setLoaded] = useState<boolean>(false);
 	const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
-	const [inputs, setInputs] = useState<PasswordInput>({ title: '', customerName: '', password: '' });
 
 	useEffect(() => {
 		fetchCustomers().then(customerData => {
 			setCustomers(customerData);
-			setInputs(values => ({ ...values, customerName: customerData[0]?.name }))
+			setLoaded(true);
 		})
 	}, []);
 
 	useEffect(() => {
-		loadPasswordsFromDatabase();
-	}, [customers])
+		if (loaded) {
+			loadPasswordsFromDatabase();
+		}
+	}, [loaded]);
 
 	const fetchCustomers = async (): Promise<Customer[]> => {
 		// using api.allorigins now to avoid CORS issue pastebin
 		const response = await fetch('https://api.allorigins.win/get?url=https://pastebin.com/raw/zSFTiVWr');
 		const data = await response.json();
 		const customerData = data.contents;
-		return JSON.parse(customerData);
+
+		try {
+			const json = JSON.parse(customerData);
+			if (json) {
+				return json;
+			}
+		} catch (e) { }
+
+		return [];
 	}
 
 	// get password list from local storage
@@ -56,14 +67,8 @@ const App = () => {
 		return customers.find(c => c.name === customer)?.color || 'white';
 	}
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-		event.preventDefault();
-
-		const { title, password, customerName } = inputs;
-
-		if (!title || !password || !customerName) {
-			return;
-		}
+	const addPassword = (input: PasswordInput): void => {
+		const { title, password, customerName } = input;
 
 		const newPasswordList = copyArray(passwords);
 		const newPassword = { title, password, customerName, display: false, customerColor: getColorForCustomer(customerName) };
@@ -72,15 +77,8 @@ const App = () => {
 
 		setPasswords(newPasswordList);
 		localStorage.setItem('passwords', JSON.stringify(newPasswordList));
-		setInputs({ title: '', customerName: customers[0]?.name, password: '' });
 	}
 
-	const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
-		const name = event.target.name;
-		const value = event.target.value;
-
-		setInputs(values => ({ ...values, [name]: value }))
-	}
 
 	const toggleDisplayPassword = (index: number): void => {
 		setPasswords((current) => {
@@ -89,39 +87,22 @@ const App = () => {
 	}
 
 	return (
-		<div className='root-container'>
-			{/* Input new password entry */}
-			<form onSubmit={handleSubmit} data-cy="form-add-password">
-				<label htmlFor="title">Title
-					<input type="text" value={inputs.title} id="title" name="title" onChange={handleOnChange} />
-				</label>
-				<label htmlFor="password">Password
-					<input type="text" value={inputs.password} id="password" name="password" onChange={handleOnChange} />
-				</label>
-				<label htmlFor="customerName">Customer
-					<select value={inputs.customerName} id="customerName" name="customerName" onChange={handleOnChange} >
-						{customers.map(customer => {
-							return (
-								<option value={customer.name} key={customer.name}>{customer.name}</option>
-							)
-						})}
-					</select>
-				</label>
-				<input type="submit" />
-			</form>
+		!loaded
+			? <div>{/* @todo some loading screen */}</div>
+			: <div className='root-container'>
+				<PasswordForm customers={customers} onSubmit={addPassword} />
 
-			{/* Render passwords */}
-			<div className='password-grid' data-cy="password-grid-list">
-				{/* table heads */}
-				<div className='header'>Title</div>
-				<div className='header'>Password</div>
-				<div className='header'>Customer</div>
-				{/* data */}
-				{passwords.map((password, index) => (
-					<PasswordRow password={password} index={index} onToggleDisplay={toggleDisplayPassword} key={index} />
-				))}
+				<div className='password-grid' data-cy="password-grid-list">
+					{/* table heads */}
+					<div className='header'>Title</div>
+					<div className='header'>Password</div>
+					<div className='header'>Customer</div>
+					{/* rows */}
+					{passwords.map((password, index) => (
+						<PasswordRow password={password} index={index} onToggleDisplay={toggleDisplayPassword} key={index} />
+					))}
+				</div>
 			</div>
-		</div>
 	);
 }
 
