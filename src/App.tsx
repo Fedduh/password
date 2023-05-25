@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Customer, PasswordEntry, PasswordInput } from './interfaces';
 
 import './App.scss';
+import { copyArray } from './util';
+
 import PasswordRow from './components/passwordRow';
 import PasswordForm from './components/passwordForm';
 
-const copyArray = <T,>(obj: T): T => {
-	return JSON.parse(JSON.stringify(obj));
-}
 
 const App = () => {
-	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [loaded, setLoaded] = useState<boolean>(false);
+
+	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [passwords, setPasswords] = useState<PasswordEntry[]>([]);
 
 	useEffect(() => {

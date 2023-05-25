@@ -29,7 +29,6 @@ const PasswordForm = ({ customers, onSubmit }: PasswordFormProps) => {
 		setInputs({ title: '', customerName: customers[0]?.name, password: '' });
 	}
 
-
 	const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
 		const name = event.target.name;
 		const value = event.target.value;
